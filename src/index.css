@@ -1,0 +1,276 @@
+@import "tailwindcss";
+
+:root {
+  --bg-gradient: linear-gradient(180deg,
+      #f3f4f6 0%,
+      #c7d2fe 35%,
+      #a78bfa 60%,
+      #60a5fa 100%);
+  --bg-background: #f7f8fc;
+
+  --grid-overlay: rgba(255, 255, 255, 0.15);
+
+  --text-primary: #1f1f28;
+  --text-secondary: #4b5563;
+
+  --accent-gradient: linear-gradient(90deg,
+      #6366f1,
+      #a855f7,
+      #60a5fa);
+
+  /* Dark Mode (Default) - "Engineered Deep Black" */
+  --color-background: #0A0A0E;
+  /* Deep black range */
+  --color-surface: #13131A;
+  /* Soft layered surface */
+  --color-primary: #6366f1;
+  /* Indigo-500 - Muted glow influence */
+  --color-secondary: #8b5cf6;
+  /* Violet-500 */
+  --color-accent: #f97316;
+  /* Subtle orange */
+  --color-muted: #1c1c21;
+  --color-text-main: #F5F5F7;
+  /* Off-white, not harsh white */
+  --color-text-secondary: #A1A1AA;
+  --color-border: transparent;
+  /* No visible borders */
+
+  --font-letter-spacing: -0.01em;
+  /* Adjusted matching Apple */
+
+  --radius-button: 9999px;
+  /* rounded-full */
+  --radius-card: 2rem;
+  /* rounded-3xl/4xl - Deep curve */
+}
+
+:root[data-theme="light"] {
+  /* Light Mode - "Soft Wash" */
+  --color-background: #F5F5F7;
+  /* Apple's specific off-white */
+  --color-surface: #FFFFFF;
+  --color-primary: #007AFF;
+  /* Apple Blue-ish */
+  --color-secondary: #5856D6;
+  /* Apple Purple */
+  --color-accent: #FF9500;
+  /* Apple Orange */
+  --color-muted: #E5E5EA;
+  --color-text-main: #1D1D1F;
+  /* Apple Black */
+  --color-text-secondary: #86868B;
+  /* Apple Gray */
+  --color-border: transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: var(--accent-gradient);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gradient/80);
+}
+
+/* Neon Orbs Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.beam-container {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.beam-light {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 60px;
+  height: 4px;
+  margin-left: -30px;
+  border-radius: 2px;
+  transform: translateY(-50%);
+  transition: all 0.5s;
+  background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.5) 30%, rgba(129, 140, 248, 0.9) 70%, rgba(99, 102, 241, 1) 100%);
+  box-shadow: 0 0 20px 4px rgba(99, 102, 241, 0.6), 0 0 40px 8px rgba(129, 140, 248, 0.3);
+}
+
+[data-theme='light'] .beam-light {
+  /* Adjust for light mode visibility if needed, or keep same */
+  background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.5) 30%, rgba(129, 140, 248, 0.9) 70%, rgba(99, 102, 241, 1) 100%);
+}
+
+.orb-light {
+  background: radial-gradient(circle at 50% 50%, #f0f4ff 0%, #f0f4ff 90%, transparent 100%);
+  box-shadow:
+    0 0 60px 2px rgba(99, 102, 241, 0.3),
+    0 0 100px 5px rgba(99, 102, 241, 0.15),
+    inset 0 0 60px 2px rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+/* Dark mode overrides if you have a .dark class on body/html */
+[data-theme='dark'] .beam-light {
+  background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.5) 30%, rgba(150, 200, 255, 0.9) 70%, white 100%);
+  box-shadow: 0 0 20px 4px rgba(100, 180, 255, 0.8), 0 0 40px 8px rgba(59, 130, 246, 0.4);
+}
+
+[data-theme='dark'] .orb-light {
+  background: radial-gradient(circle at 50% 50%, #050a18 0%, #050a18 90%, transparent 100%);
+  box-shadow:
+    0 0 60px 2px rgba(59, 130, 246, 0.4),
+    0 0 100px 5px rgba(59, 130, 246, 0.2),
+    inset 0 0 60px 2px rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(100, 180, 255, 0.3);
+}
+
+.beam-spin-6 {
+  animation: spin 6s linear infinite;
+}
+
+.beam-spin-7-reverse {
+  animation: spin-reverse 7s linear infinite;
+}
+
+.beam-spin-8 {
+  animation: spin 8s linear infinite;
+}
+
+.beam-spin-10-reverse {
+  animation: spin-reverse 10s linear infinite;
+}
+
+@theme {
+  /* Colors */
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+  --color-muted: var(--color-muted);
+  --color-text-main: var(--color-text-main);
+  --color-text-secondary: var(--color-text-secondary);
+
+  /* Fonts */
+  /* --font-sans: "SF Pro Display", "SF Pro Text", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; */
+  /* --font-heading: "SF Pro Display", "Inter", -apple-system, BlinkMacSystemFont, sans-serif; */
+
+  /* Apple Ui fonts */
+  --font-sans: -apple-system, BlinkMacSystemFont,
+    "SF Pro Text", "SF Pro Display",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --font-heading: -apple-system, BlinkMacSystemFont,
+    "SF Pro Display",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+
+  /* Animations - "Engineered" (No Bounce) */
+  --animate-fade-in: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-up: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-pulse-slow: pulseSlow 4s ease-in-out infinite;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulseSlow {
+
+    0%,
+    100% {
+      opacity: 0.4;
+    }
+
+    50% {
+      opacity: 0.7;
+    }
+  }
+}
+
+/* Base Styles */
+body {
+  @apply bg-background text-text-main font-sans antialiased selection:bg-primary/20 selection:text-primary;
+  letter-spacing: var(--font-letter-spacing);
+  font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  /* Enable stylistic sets for Inter if available */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-heading tracking-tight font-semibold;
+}
+
+/* Custom Utilities - "The Vibe" */
+@utility glass-panel {
+  @apply bg-surface/40 backdrop-blur-xl border border-[var(--color-border)];
+}
+
+@utility text-gradient-subtle {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-text-main to-text-secondary;
+}
+
+@utility text-gradient-primary {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-blue-200 via-violet-500 to-primary;
+}
+
+@utility grid-bg {
+  background-image: linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+}
+
+@utility engineered-shadow {
+  box-shadow: 0 0 0 1px var(--color-border), 0 2px 8px rgba(0, 0, 0, 0.04), 0 12px 24px rgba(0, 0, 0, 0.04);
+}

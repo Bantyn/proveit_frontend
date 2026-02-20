@@ -1,0 +1,105 @@
+src/
+│
+├── app/                    # App level setup
+│   ├── App.jsx
+│   ├── Router.jsx
+│   └── Providers.jsx
+│
+├── pages/                  # Page level components
+│   ├── landing/
+│   │   ├── LandingPage.jsx
+│   │   ├── sections/
+│   │   │   ├── Hero.jsx
+│   │   │   ├── Problem.jsx
+│   │   │   ├── Solution.jsx
+│   │   │   ├── ForCompanies.jsx
+│   │   │   ├── ForCandidates.jsx
+│   │   │   ├── RankingEngine.jsx
+│   │   │   ├── AISection.jsx
+│   │   │   ├── Testimonials.jsx
+│   │   │   ├── AnalyticsPreview.jsx
+│   │   │   ├── Security.jsx
+│   │   │   └── FinalCTA.jsx
+│   │   └── landing.styles.js (optional animation config)
+│   │
+│   ├── auth/
+│   │   ├── Login.jsx
+│   │   ├── Signup.jsx
+│   │   └── ForgotPassword.jsx
+│   │
+│   ├── dashboard/
+│   │   ├── CandidateDashboard.jsx
+│   │   ├── CompanyDashboard.jsx
+│   │   └── AdminDashboard.jsx
+│   │
+│   └── not-found/
+│       └── NotFound.jsx
+│
+├── components/             # Reusable UI components
+│   ├── ui/
+│   │   ├── Button.jsx
+│   │   ├── Input.jsx
+│   │   ├── Card.jsx
+│   │   ├── Badge.jsx
+│   │   ├── Modal.jsx
+│   │   └── Loader.jsx
+│   │
+│   ├── layout/
+│   │   ├── Navbar.jsx
+│   │   ├── Footer.jsx
+│   │   ├── Container.jsx
+│   │   └── SectionWrapper.jsx
+│   │
+│   ├── animation/
+│   │   ├── FadeIn.jsx
+│   │   ├── SlideUp.jsx
+│   │   ├── Stagger.jsx
+│   │   ├── HoverScale.jsx
+│   │   └── MotionWrapper.jsx
+│   │
+│   └── shared/
+│       ├── ThemeToggle.jsx
+│       ├── ProtectedRoute.jsx
+│       └── ScrollToTop.jsx
+│
+├── hooks/                  # Custom hooks
+│   ├── useTheme.js
+│   ├── useAuth.js
+│   ├── useFirestore.js
+│   ├── useScrollAnimation.js
+│   └── useMediaQuery.js
+│
+├── context/                # Global state
+│   ├── ThemeContext.jsx
+│   ├── AuthContext.jsx
+│   └── AppContext.jsx
+│
+├── services/               # Firebase & API logic
+│   ├── firebase.js
+│   ├── auth.service.js
+│   ├── job.service.js
+│   ├── ai.service.js
+│   ├── payment.service.js
+│   └── analytics.service.js
+│
+├── styles/
+│   ├── globals.css
+│   ├── theme.css
+│   ├── variables.css
+│   └── animations.css
+│
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   └── illustrations/
+│
+├── utils/
+│   ├── constants.js
+│   ├── helpers.js
+│   ├── formatters.js
+│   └── validators.js
+│
+└── config/
+    ├── motion.config.js
+    ├── theme.config.js
+    └── routes.config.js
