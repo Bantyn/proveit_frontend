@@ -6,6 +6,11 @@
       #c7d2fe 35%,
       #a78bfa 60%,
       #60a5fa 100%);
+
+  --bg-gradient-right: linear-gradient(90deg,
+      #a78bfa 60%,
+      #60a5fa 100%);
+
   --bg-background: #f7f8fc;
 
   --grid-overlay: rgba(255, 255, 255, 0.15);
@@ -254,6 +259,10 @@ h6 {
 /* Custom Utilities - "The Vibe" */
 @utility glass-panel {
   @apply bg-surface/40 backdrop-blur-xl border border-[var(--color-border)];
+}
+
+@utility bg-gradient-angled {
+  background-image: var(--bg-gradient-right);
 }
 
 @utility text-gradient-subtle {

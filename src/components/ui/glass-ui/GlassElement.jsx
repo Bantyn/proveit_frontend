@@ -50,13 +50,7 @@ export default function GlassElement({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       className={clsx(
-        "buttonCover", // keeping the same class as requested to reuse CSS
-        // Removing the fixed w-60 h-20 because generic elements shouldn't be fixed size unless specified in className
-        // But GlassActions had specific classes: "flex justify-center items-center tracking-tight w-60 h-20 bg-white/2 text-neutral-100 dark:text-neutral-900 cursor-grab active:cursor-grabbing"
-        // I should probably include the base glass styles but maybe let sizing be flexible?
-        // User said "create same". GlassActions has hardcoded dimensions.
-        // I will include the layout/color classes but maybe make width/height overridable or default to auto if not provided?
-        // Actually, if I want it to be "same", I should probably include the colors and flex centering.
+        "buttonCover", 
         "flex justify-center items-center tracking-tight  text-neutral-100 dark:text-neutral-900",
         className,
         bgColor

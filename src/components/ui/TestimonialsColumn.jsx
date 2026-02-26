@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-
+import GlassElement from "./glass-ui/GlassElement";
 export const TestimonialsColumn = ({
   className,
   testimonials,
@@ -19,15 +19,20 @@ export const TestimonialsColumn = ({
           ease: "linear",
           repeatType: "loop",
         }}
-        className="flex flex-col gap-6 pb-6"
+        className="flex flex-col gap-10 pb-10"
       >
         {[...new Array(2)].map((_, index) => (
           <React.Fragment key={index}>
             {testimonials.map(({ text, image, name, role }, i) => (
-              <div
-                className="p-8 rounded-[2rem] border border-slate-950/15 bg-surface shadow-lg hover:shadow-xl transition-shadow duration-300 w-full max-w-lg"
+
+              <GlassElement
+                as="div"
+                bounce
+                className="p-8 rounded-[2rem] border border-slate-950/15 shadow-lg hover:shadow-xl transition-shadow duration-300 w-full max-w-md flex flex-col justify-between items-start"
                 key={i}
               >
+
+
                 <div className="text-text-secondary leading-relaxed font-medium">
                   "{text}"
                 </div>
@@ -48,7 +53,8 @@ export const TestimonialsColumn = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </GlassElement>
+
             ))}
           </React.Fragment>
         ))}
