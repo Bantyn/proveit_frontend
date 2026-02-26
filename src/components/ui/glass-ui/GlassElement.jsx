@@ -8,6 +8,7 @@ export default function GlassElement({
   blur = "0.6rem",
   inset = "20px",
   className,
+  bgColor="bg-white/2",
   bounce = false,
   ...props
 }) {
@@ -56,14 +57,9 @@ export default function GlassElement({
         // User said "create same". GlassActions has hardcoded dimensions.
         // I will include the layout/color classes but maybe make width/height overridable or default to auto if not provided?
         // Actually, if I want it to be "same", I should probably include the colors and flex centering.
-        "flex justify-center items-center tracking-tight bg-white/2 text-neutral-100 dark:text-neutral-900",
-        // I'll omit w-60 h-20 to make it usable as a wrapper, unless user wants exact same dimensions?
-        // "create same for div,span" usually implies the *effect*.
-        // I'll add the cursor styles only if bounce is true? No, GlassActions has them always on 'button'.
-        // Since generic divs might not be interactive, I'll default cursor to default unless className overrides.
-        // But GlassActions has `cursor-grab`.
-        // I'll stick to the core visual classes from GlassActions:
+        "flex justify-center items-center tracking-tight  text-neutral-100 dark:text-neutral-900",
         className,
+        bgColor
       )}
       style={{ "--glass-blur": `${blur}`, "--inset-strength": `${inset}` }}
       {...props}

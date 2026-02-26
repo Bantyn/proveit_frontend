@@ -14,7 +14,7 @@ import FinalCTA from "./sections/FinalCTA";
 const LandingPage = () => {
   return (
     <>
-      <div className="min-h-screen text-text-main font-sans selection:bg-primary/30">
+      <div className="min-h-screen text-text-main font-sans selection:bg-rose-500/30">
         <div className="relative min-h-screen overflow-hidden">
           <div
             className="absolute inset-0 opacity-[0.06] pointer-events-none
@@ -32,7 +32,7 @@ const LandingPage = () => {
               {/* <RankingEngine /> */}
               <AISection />
               <Testimonials />
-              <AnalyticsPreview />
+              {/* <AnalyticsPreview /> */}
               <Security />
               <FinalCTA />
             </main>

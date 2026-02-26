@@ -26,26 +26,14 @@ const Hero = () => {
       </div>
 
       <div className="container mx-auto px-4 z-10 relative text-center">
-        {/* Badge - "System Status" vibe */}
-        <motion.div
-          variants={variants.slideUp}
-          initial="hidden"
-          animate="visible"
-          className="hidden inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface/50 border border-white/10 backdrop-blur-sm mb-10"
-        >
-          <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs font-mono text-text-secondary tracking-widest uppercase">
-            System Online v2.0
-          </span>
-        </motion.div>
-
+       
         {/* Headline - "Big & Confident" */}
         <motion.h1
           variants={variants.slideUp}
           initial="hidden"
           animate="visible"
           transition={{ ...transitions.default, delay: 0.1 }}
-          className="text-6xl md:text-8xl font-bold font-heading mb-8 tracking-tighter leading-[0.9] text-text-main"
+          className="text-6xl md:text-8xl font-bold font-heading mb-8 tracking-tighter leading-[0.99] text-text-main"
         >
           Stop Hiring Resumes.
           <br />
@@ -89,7 +77,7 @@ const Hero = () => {
         </motion.div>
 
         {/* Terminal/Code Snippet Visualization - "Tech First" */}
-        <GlassElement as="span" blur="1rem" className="relative max-w-5xl mx-auto h-100 rounded-4xl bg-[#0F0F16] border border-white/10 shadow-2xl overflow-hidden ">
+        <GlassElement as="span" blur="1rem" bgColor="bg-slate-950/80" className="relative max-w-8xl mx-auto h-200 rounded-4xl shadow-2xl overflow-hidden ">
         <motion.div
           variants={variants.slideUp}
           initial="hidden"
@@ -153,7 +141,7 @@ const Hero = () => {
               transition={{ delay: 1, duration: 0.5 }}
               className="flex gap-4 mt-4 text-green-400"
             >
-              <div className="w-8 text-gray-700 select-none text-right">$</div>
+              <div className="w-8 text-gray-700 select-none text-right">5</div>
               <div className="typing-cursor">Candidate Rank: Top 1%</div>
             </motion.div>
           </div>
