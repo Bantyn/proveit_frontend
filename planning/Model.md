@@ -1,8 +1,8 @@
 # Data Models
 
-## Users
+## 1. Admins
 
-```json
+```javascript
 {
   _id: ObjectId,
   fullName: String,
@@ -11,7 +11,7 @@
 
   role: {
     type: String,
-    enum: ["super_admin", "admin", "candidate", "company_owner"],
+    enum: ["SUPER_ADMIN", "ADMIN"],
     index: true
   },
 
@@ -53,72 +53,251 @@
 }
 ```
 
-## Roles
+## 2. Roles
 
-```json
+```javascript
 {
   _id: ObjectId,
   name: { type: String, unique: true },
 
   permissions: [
-    "MANAGE_ADMINS",
-    "MANAGE_COMPANIES",
-    "MANAGE_SUBSCRIPTIONS",
-    "VIEW_ANALYTICS",
-    "OVERRIDE_EVALUATIONS",
-    "SYSTEM_SETTINGS"
-  ],
 
+    // 👤 Admin Management
+    "ADMIN_VIEW",
+    "ADMIN_CREATE",
+    "ADMIN_UPDATE",
+    "ADMIN_DELETE",
+
+    // 🏢 Company Management
+    "COMPANY_VIEW",
+    "COMPANY_APPROVE",
+    "COMPANY_SUSPEND",
+    "COMPANY_UPDATE",
+    "COMPANY_DELETE",
+
+    // 🏆 Competition Management
+    "COMPETITION_VIEW",
+    "COMPETITION_CREATE",
+    "COMPETITION_UPDATE",
+    "COMPETITION_DELETE",
+    "COMPETITION_PUBLISH",
+    "COMPETITION_CANCEL",
+
+    // 👨‍🎓 Candidate Management
+    "CANDIDATE_VIEW",
+    "CANDIDATE_SUSPEND",
+    "CANDIDATE_DELETE",
+
+    // 💬 Testimonials
+    "TESTIMONIAL_VIEW",
+    "TESTIMONIAL_CREATE",
+    "TESTIMONIAL_UPDATE",
+    "TESTIMONIAL_DELETE",
+    "TESTIMONIAL_APPROVE",
+    "TESTIMONIAL_REJECT",
+    "TESTIMONIAL_FEATURE",
+
+    // ❓ FAQs
+    "FAQ_VIEW",
+    "FAQ_CREATE",
+    "FAQ_UPDATE",
+    "FAQ_DELETE",
+    "FAQ_PUBLISH",
+    "FAQ_ARCHIVE",
+    "FAQ_MODERATE",
+
+    // 💳 Subscription & Billing
+    "SUBSCRIPTION_VIEW",
+    "SUBSCRIPTION_UPDATE",
+    "SUBSCRIPTION_CANCEL",
+
+    "PLAN_VIEW",
+    "PLAN_CREATE",
+    "PLAN_UPDATE",
+    "PLAN_DELETE",
+
+    "PAYMENT_VIEW",
+    "PAYMENT_REFUND",
+
+    // 🤖 AI Configuration
+    "AI_CONFIG_VIEW",
+    "AI_CONFIG_UPDATE",
+
+    // 📊 Analytics
+    "ANALYTICS_VIEW_GENERAL",
+    "ANALYTICS_VIEW_FINANCIAL",
+
+    // 🛡 Moderation & Overrides
+    "EVALUATION_OVERRIDE",
+    "APPLICATION_STATUS_OVERRIDE",
+
+    // ⚙ System
+    "SYSTEM_SETTINGS_VIEW",
+    "SYSTEM_SETTINGS_UPDATE",
+
+    // 📜 Logs
+    "ACTIVITY_LOG_VIEW",
+    "NOTIFICATION_MANAGE"
+  ]
   createdAt: Date,
   updatedAt: Date
 }
 ```
 
-## Candidate_profiles
+## 3. Users
 
-```json
+```javascript
 {
   _id: ObjectId,
-  userId: { type: ObjectId, index: true },
+  fullName: String,
+  email: { type: String, unique: true, index: true },
+  passwordHash: String,
+
+  role: {
+    type: String,
+    enum: ["CANDIDATE", "COMPANY"],
+    index: true
+  },
+
+  status: {
+    type: String,
+    enum: ["active", "suspended", "blocked"],
+    default: "active",
+    index: true
+  },
+
+  profile: {
+    profileImage: String,
+    phone: String
+  },
+
+  security: {
+    twoFactorEnabled: Boolean,
+    twoFactorSecret: String,
+    failedLoginAttempts: Number,
+    accountLockedUntil: Date,
+    lastPasswordChange: Date
+  },
+
+  audit: {
+    lastLogin: Date,
+    lastLoginIP: String
+  },
+
+  metadata: {
+    createdBy: ObjectId,
+    notes: String
+  },
+
+  isDeleted: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: Date
+}
+```
+
+## 4. Candidate Profiles
+
+```javascript
+{
+  _id: ObjectId,
+
+  userId: {
+    type: ObjectId,
+    ref: "User",
+    required: true,
+    index: true
+  },
 
   skills: [
     {
-      name: { type: String, index: true },
-      level: { type: String },
-      years: Number
+      name: {
+        type: String,
+        required: true,
+        index: true
+      },
+      level: {
+        type: String,
+        enum: ["Beginner", "Intermediate", "Advanced", "Expert"]
+      },
+      years: {
+        type: Number,
+        min: 0
+      }
     }
   ],
 
-  experienceLevel: String,
+  experienceLevel: {
+    type: String,
+    enum: ["Fresher", "Junior", "Mid-Level", "Senior", "Lead"]
+  },
 
   education: [
     {
-      degree: String,
-      college: String,
-      year: Number
+      degree: {
+        type: String,
+        required: true
+      },
+      college: {
+        type: String,
+        required: true
+      },
+      year: {
+        type: Number
+      }
     }
   ],
 
-  github: String,
-  resumeUrl: String,
-
-  metrics: {
-    applications: { type: Number, default: 0 },
-    shortlisted: { type: Number, default: 0 },
-    selected: { type: Number, default: 0 },
-    avgScore: Number
+  github: {
+    type: String
   },
 
-  subscriptionId: ObjectId,
+  resumeUrl: {
+    type: String
+  },
 
-  createdAt: Date,
+  metrics: {
+
+    participation: {
+      total: { type: Number, default: 0 },
+      hiring: { type: Number, default: 0 },
+      skill: { type: Number, default: 0 }
+    },
+
+    hiring: {
+      shortlisted: { type: Number, default: 0 },
+      selected: { type: Number, default: 0 },
+      selectionRate: { type: Number, default: 0 }   // selected / hiring participated
+    },
+
+    performance: {
+      avgScore: { type: Number, default: 0 },
+      weightedScore: { type: Number, default: 0 },  // weighted by competition difficulty
+      highestScore: { type: Number, default: 0 },
+      scoreConsistency: { type: Number, default: 0 } // std deviation inverse
+    },
+
+    ranking: {
+      wins: { type: Number, default: 0 },          // rank 1 finishes
+      topThree: { type: Number, default: 0 },
+      bestRank: { type: Number, default: null },
+      globalRankScore: { type: Number, default: 0 } // final computed ranking number
+    }
+
+  }
+
+  subscriptionId: {
+    type: ObjectId,
+    ref: "Subscription"
+  },
+
+  createdAt: Date.Now,
   updatedAt: Date
 }
 ```
 
-## Companies
+## 5. Companies
 
-```json
+```javascript
 {
   _id: ObjectId,
   ownerId: { type: ObjectId, index: true },
@@ -138,11 +317,35 @@
   subscriptionId: ObjectId,
   jobCredits: Number,
 
-  stats: {
-    jobsPosted: Number,
-    hires: Number,
-    avgCandidateScore: Number
-  },
+    stats: {
+
+      competitions: {
+        total: Number,
+        hiring: Number,
+        skill: Number,
+        active: Number,
+        completed: Number
+      },
+
+      hiring: {
+        totalParticipants: Number,
+        shortlisted: Number,
+        hired: Number,
+        hireRate: Number   // hired / hiring competitions participants
+      },
+
+      performance: {
+        avgCandidateScore: Number,
+        avgWinningScore: Number,
+        evaluationConsistency: Number
+      },
+
+      engagement: {
+        totalSubmissions: Number,
+        avgSubmissionsPerCompetition: Number
+      }
+
+    }
 
   isDeleted: Boolean,
   createdAt: Date,
@@ -150,49 +353,238 @@
 }
 ```
 
-## Jobs
+## 6. Competitions
 
-```json
+```javascript
 {
   _id: ObjectId,
-  companyId: { type: ObjectId, index: true },
+  slug:{type:String,unique:true},
+
+  companyId: {
+    type: ObjectId,
+    index: true
+  },
 
   title: String,
-  slug: { type: String, unique: true },
-
   description: String,
+
+  competitionType: {
+    type: String,
+    enum: ["HIRING", "SKILL"],
+    index: true
+  },
+
+  // Only used if competitionType = "HIRING"
+  jobId: {
+    type: ObjectId,
+    index: true
+  },
+
+  rules: String,
 
   requiredSkills: [{ type: String, index: true }],
 
-  project: {
+  projectInfo: {
     title: String,
-    difficulty: String,
+    difficulty: { type: String, enum: ["EASY", "MEDIUM", "HARD"] ,index:true},
     deadline: Date,
     maxSubmissions: Number
   },
 
-  visibility: { type: String, enum: ["public", "private"] },
-  status: { type: String, enum: ["active", "closed"], index: true },
+  visibility: {
+    type: String,
+    enum: ["public", "private"]
+  },
 
-  competitionId: ObjectId,
+  status: {
+    type: String,
+    enum: ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"],
+    index: true
+  },
 
-  rankingGenerated: Boolean,
   totalApplications: Number,
+  rankingStatus: {
+    type: String,
+    enum: ["NOT_GENERATED", "GENERATING", "GENERATED"]
+  },
+
+  startDate: {type:Date,index:true},
+  endDate: {type:Date,index:true},
+
+  isDeleted: { type: Boolean, default: false },
+  
+  createdByAdminId: ObjectId,
 
   createdAt: Date,
   updatedAt: Date
 }
 ```
 
-## projects
+## 7. Jobs
 
-```json
+```javascript
 {
   _id: ObjectId,
-  candidateId: { type: ObjectId, index: true },
-  jobId: { type: ObjectId, index: true },
 
-  submissionType: String,
+  companyId: {
+    type: ObjectId,
+    index: true
+  },
+
+  role: {
+    type: String,
+    index: true
+  },
+
+  department: {
+    type: String,
+    index: true
+  },
+
+  experienceLevel: {
+    type: String,
+    enum: ["Fresher", "Junior", "Mid-Level", "Senior", "Lead"],
+    index: true
+  },
+
+  employmentType: {
+    type: String,
+    enum: ["Full-Time", "Part-Time", "Internship", "Contract"]
+  },
+
+  salaryRange: {
+    min: Number,
+    max: Number,
+    currency: String
+  },
+
+  requiredSkills: [{ type: String, index: true }],
+
+  status: {
+    type: String,
+    enum: ["active", "closed"],
+    index: true
+  },
+
+  isDeleted: Boolean,
+
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+## 8. Applications
+
+```javascript
+{
+  _id: ObjectId,
+
+  userId: {
+    type: ObjectId,
+    ref: "User",
+    required: true,
+    index: true
+  },
+
+  competitionId: {
+    type: ObjectId,
+    ref: "Competition",
+    required: true,
+    index: true
+  },
+
+  companyId: {
+    type: ObjectId,
+    ref: "Company",
+    required: true,
+    index: true
+  },
+
+  competitionType: {
+    type: String,
+    enum: ["HIRING", "SKILL"],
+    required: true,
+    index: true
+  },
+
+  // Optional if competition is tied to a job role
+  jobId: {
+    type: ObjectId,
+    index: true
+  },
+
+  status: {
+    type: String,
+    enum: [
+      "APPLIED",
+      "SUBMITTED",
+      "SHORTLISTED",
+      "INTERVIEW_SCHEDULED",
+      "SELECTED",
+      "REJECTED"
+    ],
+    default: "APPLIED",
+    index: true
+  },
+
+  scoring: {
+    score: {
+      type: Number,
+      default: 0
+    },
+    rank: {
+      type: Number,
+      default: null
+    },
+    percentile: {
+      type: Number,
+      default: null
+    }
+  },
+
+  feedback: String,
+
+  audit: {
+    evaluatedBy: ObjectId,
+    evaluatedAt: Date
+  },
+
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+## 9. In application schema
+
+```javascript
+ApplicationsSchema.index(
+  { userId: 1, competitionId: 1 },
+  { unique: true }
+);
+```
+
+## 10. Projects
+
+```javascript
+{
+  _id: ObjectId,
+
+  applicationId: {
+    type: ObjectId,
+    ref: "Application",
+    required: true,
+    index: true
+  },
+
+  submissionType: {
+    type: String,
+    enum: ["GITHUB", "FILE_UPLOAD", "EXTERNAL_LINK", "DOCUMENT"]
+  },
 
   files: [
     {
@@ -203,285 +595,838 @@
     }
   ],
 
+  externalLinks: [
+    {
+      label: String,
+      url: String
+    }
+  ],
+
   techStack: [{ type: String, index: true }],
 
-  evaluation: {
+    evaluation: {
     autoScore: Number,
     manualScore: Number,
     plagiarismScore: Number,
-    finalScore: { type: Number, index: true }
+
+    criteriaScores: [
+      {
+        criteriaTitle: String,
+        score: Number,
+        weight: Number
+      }
+    ],
+
+    finalScore: {
+      type: Number,
+      index: true
+    }
   },
 
   reviewStatus: {
     type: String,
-    enum: ["pending", "reviewed", "flagged"]
-  },
-
-  submittedAt: Date
-}
-```
-
-## applications
-
-```json
-{
-  _id: ObjectId,
-  jobId: { type: ObjectId, index: true },
-  candidateId: { type: ObjectId, index: true },
-  projectId: ObjectId,
-
-  status: {
-    type: String,
-    enum: ["submitted", "shortlisted", "interview_scheduled", "selected", "rejected"],
+    enum: ["PENDING", "UNDER_REVIEW", "REVIEWED", "FLAGGED"],
     index: true
   },
 
-  ranking: {
-    rank: Number,
-    percentile: Number
-  },
-
-  audit: {
-    evaluatedBy: ObjectId,
-    evaluatedAt: Date
-  },
-
-  isDeleted: Boolean,
-  createdAt: Date
-}
-```
-
-## interviews
-
-```json
-{
-  _id: ObjectId,
-  applicationId: ObjectId,
-  jobId: ObjectId,
-  candidateId: ObjectId,
-
-  rounds: [
-    {
-      roundNumber: Number,
-      type: String,
-      scheduledAt: Date,
-      status: String,
-      feedback: String,
-      rating: Number
-    }
-  ],
-
-  finalDecision: String,
+  submittedAt: Date,
   updatedAt: Date
 }
 ```
 
-## competitions
+## 11. Interviews
 
-```json
+```javascript
 {
   _id: ObjectId,
-  title: String,
-  description: String,
 
-  competitionType: String,
+  applicationId: {
+    type: ObjectId,
+    ref: "Application",
+    required: true,
+    index: true
+  },
 
-  rules: String,
+  companyId: {
+    type: ObjectId,
+    index: true
+  },
 
-  startDate: Date,
-  endDate: Date,
+  rounds: [
+    {
+      roundNumber: {
+        type: Number
+      },
 
-  createdByAdminId: ObjectId
+      type: {
+        type: String,
+        enum: [
+          "SCREENING",        // initial filter call
+          "HR",               // HR / culture discussion
+          "TECHNICAL",        // coding / system design / technical deep dive
+          "CASE_STUDY",       // business / strategy / marketing cases
+          "ASSIGNMENT_REVIEW",// review of submitted project
+          "PORTFOLIO_REVIEW", // creative / design roles
+          "MANAGERIAL",       // leadership / stakeholder round
+          "BEHAVIORAL",       // personality / situation-based questions
+          "FINAL",            // final approval round
+          "OTHER"             // fallback for custom cases
+        ]
+      },
+
+      scheduledAt: Date,
+
+      durationMinutes: Number, // Optional
+
+      mode: {
+        type: String,
+        enum: ["ONLINE", "OFFLINE"]
+      },
+
+      meetingLink: String, // Optional
+
+      status: {
+        type: String,
+        enum: [
+          "SCHEDULED",
+          "COMPLETED",
+          "CANCELLED",
+          "NO_SHOW"
+        ],
+        index: true
+      },
+
+      feedback: String,
+
+      rating: {
+        type: Number,
+        min: 0,
+        max: 10
+      },
+
+      evaluatedAt: Date
+    }
+  ],
+
+  finalDecision: {
+    type: String,
+    enum: ["SELECTED", "REJECTED", "ON_HOLD"]
+  },
+
+  finalRemarks: String,
+
+  decisionBy: ObjectId,
+
+  createdAt: Date,
+  updatedAt: Date
 }
 ```
 
-## subscriptions
+## 12. Subscriptions
 
-```json
+```javascript
 {
   _id: ObjectId,
-  ownerId: ObjectId,
-  ownerType: { type: String, enum: ["company", "candidate"] },
 
-  planId: ObjectId,
+  companyId: {
+    type: ObjectId,
+    ref: "Company",
+    required: true,
+    index: true
+  },
 
-  status: { type: String, enum: ["active", "expired"] },
+  planId: {
+    type: ObjectId,
+    ref: "Plan",
+    required: true
+  },
+
+  status: {
+    type: String,
+    enum: ["ACTIVE", "EXPIRED", "CANCELLED", "PAUSED"],
+    index: true
+  },
+
+  billingCycle: {
+    type: String,
+    enum: ["MONTHLY", "YEARLY"]
+  },
+
+  priceAtPurchase: Number,
 
   validFrom: Date,
   validTo: Date,
 
-  paymentId: ObjectId,
+  autoRenew: Boolean,
 
-  createdAt: Date
-}
-```
-
-## plans
-
-```json
-```
-
-## payments (separate if audit required)
-
-```json
-{
-  _id: ObjectId,
-  subscriptionId: ObjectId,
-
-  amount: Number,
-  currency: String,
-
-  gateway: String,
-  gatewayTransactionId: String,
-
-  status: { type: String, enum: ["success", "failed"] },
-
-  createdAt: Date
-}
-```
-
-## chats
-
-```json
-{
-  _id: ObjectId,
-  participants: [ObjectId],
-  lastMessageAt: Date,
-  createdAt: Date
-}
-```
-
-## messages
-
-```json
-{
-  _id: ObjectId,
-  chatId: { type: ObjectId, index: true },
-  senderId: ObjectId,
-  message: String,
-  sentAt: { type: Date, index: true }
-}
-```
-
-## notifications
-
-```json
-{
-  _id: ObjectId,
-  userId: { type: ObjectId, index: true },
-
-  type: String,
-  title: String,
-  message: String,
-  referenceId: ObjectId,
-
-  isRead: Boolean,
-  createdAt: Date
-}
-```
-
-## activity_logs
-
-```json
-{
-  _id: ObjectId,
-  actorId: ObjectId,
-  actorRole: String,
-
-  action: String,
-  targetId: ObjectId,
-
-  ipAddress: String,
-  userAgent: String,
-
-  timestamp: Date
-}
-```
-
-## system_settings
-
-```json
-{
-  _id: "system_settings",
-
-  platform: {
-    maintenanceMode: Boolean,
-    allowNewRegistrations: Boolean
-  },
-
-  evaluation: {
-    autoEvaluationEnabled: Boolean,
-    plagiarismThreshold: Number
-  },
-
-  ranking: {
-    manualWeight: Number,
-    autoWeight: Number,
-    plagiarismWeight: Number
-  },
-
-  updatedBy: ObjectId,
+  createdAt: Date,
   updatedAt: Date
 }
 ```
 
-## contact_messages
+## 13. Plans
 
-```json
+```javascript
 {
   _id: ObjectId,
 
-  senderType: {
+  name: {
     type: String,
-    enum: ["user", "company", "guest"],
+    enum: ["STARTER", "GROWTH", "ELITE"],
+    unique: true
+  },
+
+  description: String,
+
+  priceMonthly: Number,
+  priceYearly: Number,
+
+  features: {
+
+    competitions: {
+      maxCompetitionsPerMonth: Number,
+      maxActiveCompetitions: Number,
+      maxApplicationsPerCompetition: Number,
+      maxShortlistedPerCompetition: Number   // -1 = unlimited
+    },
+
+    interviews: {
+      enabled: Boolean,
+      maxRoundsPerApplication: Number
+    },
+
+    analytics: {
+      advancedAnalytics: Boolean,
+      leaderboardAccess: Boolean
+    },
+
+    branding: {
+      brandingCustomization: Boolean
+    },
+
+    ai: {
+      chatbotSupport: Boolean
+    },
+
+    messaging: {
+      enabled: Boolean,
+
+      unlockStage: {
+        type: String,
+        enum: ["NONE", "SUBMITTED", "SHORTLISTED"]
+      },
+
+      maxActiveChats: Number,
+      allowFileSharing: Boolean,
+      maxAttachmentSizeMB: Number
+    },
+
+    support: {
+      prioritySupport: Boolean
+    }
+  },
+
+  isActive: Boolean,
+
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+## 14. Payments
+
+```javascript
+{
+  _id: ObjectId,
+
+  companyId: {
+    type: ObjectId,
+    ref: "Company",
+    required: true,
+    index: true
+  },
+
+  subscriptionId: {
+    type: ObjectId,
+    ref: "Subscription",
+    required: true,
+    index: true
+  },
+
+  planId: {
+    type: ObjectId,
+    ref: "Plan"
+  },
+
+  billingCycle: {
+    type: String,
+    enum: ["MONTHLY", "YEARLY"]
+  },
+
+  amount: {
+    type: Number,
+    required: true
+  },
+
+  currency: {
+    type: String,
+    default: "INR"
+  },
+
+  paymentType: {
+    type: String,
+    enum: ["NEW_SUBSCRIPTION", "RENEWAL", "UPGRADE", "DOWNGRADE"]
+  },
+
+  gateway: {
+    type: String,
+    enum: ["STRIPE", "RAZORPAY", "PAYPAL", "OTHER"]
+  },
+
+  gatewayTransactionId: {
+    type: String,
+    index: true
+  },
+
+  status: {
+    type: String,
+    enum: [
+      "PENDING",
+      "SUCCESS",
+      "FAILED",
+      "REFUNDED"
+    ],
+    index: true
+  },
+
+  failureReason: String,
+
+  invoiceNumber: String,
+
+  paidAt: Date,
+
+  metadata: Object, // store raw gateway response if needed
+
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+## 15. Chats
+
+```javascript
+{
+  _id: ObjectId,
+
+  applicationId: {
+    type: ObjectId,
+    ref: "Application",
+    required: true,
+    unique: true,        // One chat per application
+    index: true
+  },
+
+  companyId: {
+    type: ObjectId,
+    ref: "Company",
+    required: true,
+    index: true
+  },
+
+  candidateId: {
+    type: ObjectId,
+    ref: "User",
+    required: true,
+    index: true
+  },
+
+  isLocked: {
+    type: Boolean,
+    default: false       // Lock if subscription expires
+  },
+
+  lastMessage: String,   // For fast chat list preview
+
+  lastMessageAt: {
+    type: Date,
+    index: true
+  },
+
+  unreadCount: {
+    company: { type: Number, default: 0 },
+    candidate: { type: Number, default: 0 }
+  },
+
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+## 16. Messages
+
+```javascript
+{
+  _id: ObjectId,
+
+  chatId: {
+    type: ObjectId,
+    ref: "Chat",
+    required: true,
     index: true
   },
 
   senderId: {
     type: ObjectId,
-    default: null,
+    ref: "User",
+    required: true
+  },
+
+  senderRole: {
+    type: String,
+    enum: ["COMPANY", "CANDIDATE"]
+  },
+
+  messageType: {
+    type: String,
+    enum: ["TEXT", "FILE", "SYSTEM"],
+    default: "TEXT"
+  },
+
+  content: String,
+
+  attachments: [
+    {
+      fileName: String,
+      fileUrl: String,
+      sizeMB: Number
+    }
+  ],
+
+  isEdited: {
+    type: Boolean,
+    default: false
+  },
+
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+
+  readBy: [
+    {
+      userId: ObjectId,
+      readAt: Date
+    }
+  ],
+
+  sentAt: {
+    type: Date,
+    index: true
+  }
+}
+```
+
+## 17. Notifications
+
+```javascript
+{
+  _id: ObjectId,
+
+  recipientId: {
+    type: ObjectId,
+    ref: "User",
     index: true
   },
 
-  name: String,
-  email: { type: String, index: true },
+  recipientRole: {
+    type: String,
+    enum: ["CANDIDATE", "COMPANY", "ADMIN"]
+  },
+
+  type: {
+    type: String,
+    enum: [
+      "APPLICATION_STATUS",
+      "NEW_MESSAGE",
+      "INTERVIEW_SCHEDULED",
+      "INTERVIEW_UPDATED",
+      "PAYMENT_SUCCESS",
+      "PAYMENT_FAILED",
+      "SUBSCRIPTION_EXPIRING",
+      "COMPETITION_UPDATE",
+      "SYSTEM"
+    ],
+    index: true
+  },
+
+  title: String,
+  message: String,
+
+  entityType: {
+    type: String,
+    enum: ["APPLICATION", "COMPETITION", "INTERVIEW", "PAYMENT", "SUBSCRIPTION", "CHAT"]
+  },
+
+  entityId: ObjectId,
+
+  priority: {
+    type: String,
+    enum: ["LOW", "MEDIUM", "HIGH"],
+    default: "LOW"
+  },
+
+  isRead: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+
+  readAt: Date,
+
+  deliveryChannels: {
+    inApp: Boolean,
+    email: Boolean,
+    push: Boolean
+  },
+
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+## 18. Activity Logs
+
+```javascript
+{
+  _id: ObjectId,
+
+  actorId: {
+    type: ObjectId,
+    index: true
+  },
+
+  actorRole: {
+    type: String,
+    enum: ["CANDIDATE", "COMPANY", "ADMIN", "SUPER_ADMIN", "SYSTEM"],
+    index: true
+  },
+
+  action: {
+    type: String,
+    enum: [
+
+      // 🔐 AUTH
+      "AUTH_LOGIN",
+      "AUTH_LOGOUT",
+      "AUTH_PASSWORD_RESET",
+      "AUTH_ACCOUNT_LOCK",
+
+      // 🏆 COMPETITION
+      "COMPETITION_CREATE",
+      "COMPETITION_UPDATE",
+      "COMPETITION_DELETE",
+      "COMPETITION_PUBLISH",
+      "COMPETITION_CANCEL",
+
+      // 📄 APPLICATION
+      "APPLICATION_APPLY",
+      "APPLICATION_WITHDRAW",
+      "APPLICATION_SHORTLIST",
+      "APPLICATION_REJECT",
+      "APPLICATION_SELECT",
+      "APPLICATION_STATUS_OVERRIDE",
+
+      // 📦 PROJECT
+      "PROJECT_SUBMIT",
+      "PROJECT_UPDATE",
+      "PROJECT_EVALUATE",
+      "PROJECT_EVALUATION_OVERRIDE",
+
+      // 📅 INTERVIEW
+      "INTERVIEW_SCHEDULE",
+      "INTERVIEW_UPDATE",
+      "INTERVIEW_CANCEL",
+      "INTERVIEW_COMPLETE",
+
+      // 💬 CHAT & MESSAGING
+      "CHAT_CREATE",
+      "CHAT_LOCK",
+      "CHAT_UNLOCK",
+      "CHAT_DELETE",
+      "CHAT_MESSAGE_SEND",
+      "CHAT_MESSAGE_EDIT",
+      "CHAT_MESSAGE_DELETE",
+      "CHAT_ATTACHMENT_UPLOAD",
+      "CHAT_MARK_AS_READ",
+
+      // 💳 BILLING & SUBSCRIPTION
+      "PAYMENT_CREATE",
+      "PAYMENT_FAIL",
+      "PAYMENT_REFUND",
+      "SUBSCRIPTION_CREATE",
+      "SUBSCRIPTION_UPDATE",
+      "SUBSCRIPTION_CANCEL",
+
+      // 🏢 COMPANY (Admin-controlled)
+      "COMPANY_APPROVE",
+      "COMPANY_REJECT",
+      "COMPANY_SUSPEND",
+      "COMPANY_RESTORE",
+      "COMPANY_UPDATE",
+      "COMPANY_DELETE",
+
+      // 👨‍🎓 CANDIDATE (Admin-controlled)
+      "CANDIDATE_SUSPEND",
+      "CANDIDATE_DELETE",
+
+      // 👤 ADMIN MANAGEMENT
+      "ADMIN_CREATE",
+      "ADMIN_UPDATE",
+      "ADMIN_DELETE",
+      "ADMIN_ROLE_ASSIGN",
+
+      // 📊 ANALYTICS
+      "ANALYTICS_VIEW_GENERAL",
+      "ANALYTICS_VIEW_FINANCIAL",
+
+      // ⚙ PLAN & SYSTEM SETTINGS
+      "PLAN_CREATE",
+      "PLAN_UPDATE",
+      "PLAN_DELETE",
+      "SYSTEM_SETTINGS_UPDATE",
+
+      // 🤖 SYSTEM AUTOMATIONS
+      "SYSTEM_AUTO_SHORTLIST",
+      "SYSTEM_GENERATE_RANKING",
+      "SYSTEM_AUTO_RENEW_SUBSCRIPTION"
+
+    ],
+    index: true
+  },
+
+  entityType: {
+    type: String,
+    enum: [
+      "USER",
+      "COMPANY",
+      "COMPETITION",
+      "APPLICATION",
+      "PROJECT",
+      "INTERVIEW",
+      "CHAT",
+      "MESSAGE",
+      "SUBSCRIPTION",
+      "PAYMENT",
+      "PLAN",
+      "SYSTEM_SETTINGS",
+      "ROLE"
+    ]
+  },
+
+  entityId: ObjectId,
+
+  metadata: Object,
+
+  severity: {
+    type: String,
+    enum: ["INFO", "WARNING", "CRITICAL"],
+    default: "INFO",
+    index: true
+  },
+
+  ipAddress: String,
+  userAgent: String,
+
+  correlationId: String,
+
+  createdAt: {
+    type: Date,
+    index: true
+  }
+}
+```
+
+## 19. System Settings
+
+```javascript
+{
+  _id: "system_settings",
+
+  platform: {
+    maintenanceMode: {
+      enabled: Boolean,
+      message: String,
+      allowAdminAccess: Boolean
+    },
+
+    allowNewRegistrations: Boolean,
+
+    allowCompanyRegistrations: Boolean,
+
+    allowCandidateRegistrations: Boolean
+  },
+
+  features: {
+    enableChat: Boolean,
+    enableInterviews: Boolean,
+    enablePayments: Boolean,
+    enableSubscriptions: Boolean,
+    enableAI: Boolean
+  },
+
+  competitions: {
+    allowNewCompetitions: Boolean,
+    maxGlobalActiveCompetitions: Number
+  },
+
+  evaluation: {
+    autoEvaluationEnabled: Boolean,
+    plagiarismThreshold: Number,
+    allowManualOverride: Boolean
+  },
+
+  ranking: {
+    manualWeight: Number,
+    autoWeight: Number,
+    plagiarismWeight: Number,
+    enableAutoRanking: Boolean
+  },
+
+  security: {
+    maxLoginAttempts: Number,
+    lockoutDurationMinutes: Number,
+    enableIPTracking: Boolean,
+    enableAuditLogs: Boolean
+  },
+
+  limits: {
+    maxFileUploadSizeMB: Number,
+    maxMessageLength: Number,
+    maxProjectsPerApplication: Number
+  },
+
+  billing: {
+    allowAutoRenew: Boolean,
+    gracePeriodDays: Number
+  },
+
+  notifications: {
+    enableEmailNotifications: Boolean,
+    enableInAppNotifications: Boolean,
+    enablePushNotifications: Boolean
+  },
+
+  updatedBy: {
+    type: ObjectId,
+    ref: "User"
+  },
+
+  version: Number, // increment on every change
+
+  updatedAt: Date
+}
+```
+
+## 20. Contact Messages
+
+```javascript
+{
+  _id: ObjectId,
+
+  ticketNumber: String,
+
+  senderId: {
+    type: ObjectId,
+    index: true
+  },
+
+  category: {
+    type: String,
+    enum: [
+      "ACCOUNT_ISSUE",
+      "PAYMENT_ISSUE",
+      "SUBSCRIPTION",
+      "COMPETITION_QUERY",
+      "TECHNICAL_BUG",
+      "INTERVIEW_ISSUE",
+      "GENERAL_INQUIRY"
+    ],
+    index: true
+  },
 
   subject: String,
-  message: String,
+
+  description: String,   // original complaint
+
+  attachments: [
+    {
+      fileName: String,
+      fileUrl: String,
+      sizeMB: Number
+    }
+  ],
 
   status: {
     type: String,
-    enum: ["new", "in_progress", "resolved", "closed"],
-    default: "new",
+    enum: ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"],
+    default: "OPEN",
     index: true
   },
 
   priority: {
     type: String,
-    enum: ["low", "medium", "high"],
-    default: "medium"
+    enum: ["LOW", "MEDIUM", "HIGH", "URGENT"],
+    default: "MEDIUM",
+    index: true
   },
 
-  assignedTo: ObjectId, // adminId
+  assignedTo: {
+    type: ObjectId,
+    index: true
+  },
 
-  response: {
-    message: String,
-    respondedBy: Objec
+  relatedEntity: {
+    entityType: String,
+    entityId: ObjectId
+  },
+
+  resolvedAt: Date,
+
+  createdAt: {
+    type: Date,
+    index: true
+  },
+
+  updatedAt: Date
+}
 ```
 
-## otps
+## 21. OTPs
 
-```json
+```javascript
 {
   _id: ObjectId,
 
-  email: { type: String, index: true },
+  userId: {
+    type: ObjectId,
+    index: true
+  },
 
-  otp: String, // hashed OTP (never store plain text)
+  email: {
+    type: String,
+    index: true
+  },
+
+  otpHash: String,   // store hashed value only
 
   purpose: {
     type: String,
-    enum: ["email_verification", "password_reset", "2fa_login"],
+    enum: ["EMAIL_VERIFICATION", "PASSWORD_RESET", "TWO_FA_LOGIN"],
     index: true
   },
 
@@ -495,9 +1440,12 @@
     default: 5
   },
 
+  requestIp: String,
+
   isUsed: {
     type: Boolean,
-    default: false
+    default: false,
+    index: true
   },
 
   expiresAt: {
@@ -512,26 +1460,41 @@
 }
 ```
 
-## testimonials
+## 22. Testimonials
 
-```json
+```javascript
 {
   _id: ObjectId,
 
-  authorName: String,
-
-  authorRole: {
+  sourceType: {
     type: String,
-    enum: ["candidate", "company"],
+    enum: ["USER_SUBMITTED", "ADMIN_CREATED"],
+    required: true,
     index: true
   },
 
-  authorId: ObjectId,
+  author: {
+    id: {
+      type: ObjectId,
+      default: null,        // null if admin-created external testimonial
+      index: true
+    },
 
-  companyName: String, // optional display
-  designation: String, // optional
+    role: {
+      type: String,
+      enum: ["CANDIDATE", "COMPANY", "EXTERNAL"],
+      required: true,
+      index: true
+    },
 
-  content: String,
+    nameSnapshot: String,
+    designationSnapshot: String,
+    companySnapshot: String
+  },
+
+  content: {
+    type: String
+  },
 
   rating: {
     type: Number,
@@ -540,46 +1503,30 @@
     index: true
   },
 
-  isApproved: {
+  status: {
+    type: String,
+    enum: ["PENDING", "APPROVED", "REJECTED"],
+    default: "PENDING",
+    index: true
+  },
+
+  rejectionReason: String,
+
+  isFeatured: {
     type: Boolean,
     default: false,
     index: true
   },
 
-  featured: {
-    type: Boolean,
-    default: false
-  },
-
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: Date
-}
-```
-
-## faqs
-
-```json
-{
-  _id: ObjectId,
-
-  question: String,
-  answer: String,
-
-  category: {
-    type: String,
-    enum: ["general", "candidate", "company", "pricing", "technical"],
-    index: true
-  },
-
-  order: {
+  displayOrder: {
     type: Number,
     default: 0,
     index: true
   },
 
-  isActive: {
+  isDeleted: {
     type: Boolean,
-    default: true,
+    default: false,
     index: true
   },
 
@@ -588,158 +1535,346 @@
     default: 0
   },
 
-  createdBy: ObjectId,
-  updatedBy: ObjectId,
+  moderation: {
+    approvedBy: ObjectId,
+    approvedAt: Date
+  },
 
-  createdAt: { type: Date, default: Date.now },
+  createdBy: ObjectId,   // who created this record (user or admin)
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    index: true
+  },
+
   updatedAt: Date
 }
 ```
 
-## analytics
+## 23. FAQs
 
-```json
+```javascript
 {
   _id: ObjectId,
 
-  date: { type: Date, unique: true, index: true },
+  sourceType: {
+    type: String,
+    enum: ["ADMIN_CREATED", "COMPANY_CREATED"],
+    required: true,
+    index: true
+  },
+
+  scope: {
+    type: String,
+    enum: ["GLOBAL", "COMPANY", "COMPETITION"],
+    required: true,
+    index: true
+  },
+
+  scopeId: {
+    type: ObjectId,
+    default: null,
+    index: true
+    // null if GLOBAL
+    // companyId if COMPANY
+    // competitionId if COMPETITION
+  },
+
+  question: {
+    type: String,
+    index: true
+  },
+
+  answer: String,
+
+  slug: {
+    type: String,
+    index: true
+    // only required unique for GLOBAL FAQs
+  },
+
+  category: {
+    type: String,
+    enum: [
+      "GENERAL",
+      "CANDIDATE",
+      "COMPANY",
+      "PRICING",
+      "TECHNICAL",
+      "COMPETITION_SPECIFIC"
+    ],
+    index: true
+  },
+
+  tags: [String],
+
+  displayOrder: {
+    type: Number,
+    default: 0,
+    index: true
+  },
+
+  isFeatured: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+
+  status: {
+    type: String,
+    enum: ["DRAFT", "PUBLISHED", "ARCHIVED"],
+    default: "DRAFT",
+    index: true
+  },
+
+  isDeleted: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+
+  viewCount: {
+    type: Number,
+    default: 0
+  },
+
+  moderation: {
+    approvedBy: ObjectId,
+    approvedAt: Date
+  },
+
+  createdBy: ObjectId,
+  updatedBy: ObjectId,
+
+  publishedAt: Date,
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    index: true
+  },
+
+  updatedAt: Date
+}
+```
+
+## 24. Analytics
+
+```javascript
+{
+  _id: ObjectId,
+
+  date: {
+    type: Date,
+    unique: true,
+    index: true
+  },
 
   users: {
     total: Number,
     new: Number,
-    active: Number
+    active: Number,        // logged in that day
+    candidates: Number,
+    companies: Number
   },
 
-  companies: {
+  competitions: {
     total: Number,
-    new: Number
-  },
-
-  jobs: {
-    total: Number,
-    new: Number
+    new: Number,
+    active: Number,
+    completed: Number
   },
 
   applications: {
     total: Number,
-    new: Number
+    new: Number,
+    shortlisted: Number,
+    selected: Number
+  },
+
+  projects: {
+    submitted: Number,
+    evaluated: Number,
+    avgScore: Number
+  },
+
+  interviews: {
+    scheduled: Number,
+    completed: Number
+  },
+
+  subscriptions: {
+    active: Number,
+    new: Number,
+    cancelled: Number,
+    churnRate: Number
   },
 
   revenue: {
     daily: Number,
-    monthlyRecurring: Number
+    monthlyRecurring: Number,   // MRR = Monthly Recurring Revenue - The predictable revenue your platform earns every month from active subscriptions.
+    yearlyRecurring: Number     // ARR = Annual Recurring Revenue - The total predictable revenue your platform expects to earn over a year from active subscriptions.
   },
 
   hiringMetrics: {
-    avgTimeToHire: Number,
-    conversionRate: Number
+    avgTimeToHireDays: Number,
+    hireConversionRate: Number,   // selected / total applicants
+    shortlistRate: Number         // shortlisted / applicants
   },
 
-  createdAt: { type: Date, default: Date.now }
+  engagement: {
+    messagesSent: Number,
+    activeChats: Number
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 }
 ```
 
-## Ai_chats
+## 25. AI Chats
 
-* ai_chats/{chatId}
-
-```json
+```javascript
 {
-  userId: String, // reference to users
+  _id: ObjectId,
 
-  title: String, // auto-generated from first message
+  userId: {
+    type: ObjectId,
+    index: true
+  },
+
+  userType: {
+    type: String,
+    enum: ["CANDIDATE", "COMPANY"],
+    index: true
+  },
+
+  companyId: {
+    type: ObjectId,
+    default: null,
+    index: true
+  },
+
+  candidateId: {
+    type: ObjectId,
+    default: null,
+    index: true
+  },
+
+  title: String,
+
   contextType: {
     type: String,
     enum: [
-      "general",
-      "job_assistant",
-      "project_review",
-      "interview_prep",
-      "resume_help"
-    ]
+      "GENERAL",
+      "JOB_ASSISTANT",
+      "PROJECT_REVIEW",
+      "INTERVIEW_PREP",
+      "RESUME_HELP",
+      "PERFORMANCE_ANALYSIS"
+    ],
+    index: true
   },
 
-  jobId: String | null,
-  projectId: String | null,
+  relatedEntity: {
+    entityType: {
+      type: String,
+      enum: ["JOB", "PROJECT", "COMPETITION", null]
+    },
+    entityId: ObjectId
+  },
 
   model: {
-    provider: "openai", // or "gemini"
-    modelName: "gpt-4o-mini"
+    provider: String,
+    modelName: String
   },
 
-  totalMessages: Number,
-  totalTokensUsed: Number,
+  planSnapshot: {
+    planId: ObjectId,
+    planName: String
+  },
 
-  lastMessageAt: Timestamp,
+  usage: {
+    totalMessages: Number,
+    totalTokensUsed: Number,
+    totalCost: Number
+  },
+
+  lastMessageAt: Date,
 
   isArchived: Boolean,
   isDeleted: Boolean,
 
-  createdAt: Timestamp,
-  updatedAt: Timestamp
+  createdAt: Date,
+  updatedAt: Date
 }
 ```
 
-## Ai_Messages
+## 26. AI Messages
 
-```json
- {
-  chatId: String,
-  userId: String,
+```javascript
+{
+  _id: ObjectId,
 
-  role: {
+  chatId: {
+    type: ObjectId,
+    index: true
+  },
+
+  senderRole: {
     type: String,
-    enum: ["user", "assistant", "system"]
+    enum: ["USER", "ASSISTANT", "SYSTEM"]
   },
 
   content: String,
 
-  metadata: {
+  tokenUsage: {
     promptTokens: Number,
     completionTokens: Number,
-    totalTokens: Number,
-
-    responseTimeMs: Number,
-    modelUsed: String
+    totalTokens: Number
   },
 
-  contextSnapshot: {
-    jobId: String | null,
-    projectId: String | null
-  },
+  responseTimeMs: Number,
 
-  createdAt: Timestamp
+  modelUsed: String,
+
+  createdAt: {
+    type: Date,
+    index: true
+  }
 }
 ```
 
-## Ai_messages
+## 27. AI Rate Limits
 
-* ai_chats/{chatId}/messages/{messageId}
-
-```json
+```javascript
 {
-  role: {
-    type: String,
-    enum: ["user", "assistant"]
+  _id: ObjectId,
+
+  userId: {
+    type: ObjectId,
+    index: true
   },
 
-  content: String,
-
-  createdAt: Timestamp
-}
-```
-
-## Ai_rate_limits
-
-* ai_limits/{userId}
-
-```json
- {
-  userId: String,
+  userType: {
+    type: String,
+    enum: ["CANDIDATE", "COMPANY"]
+  },
 
   dailyMessageCount: Number,
+  monthlyTokenUsage: Number,
 
-  lastResetAt: Timestamp
+  lastDailyResetAt: Date,
+  lastMonthlyResetAt: Date,
+
+  planSnapshot: {
+    planId: ObjectId,
+    dailyLimit: Number,
+    monthlyTokenLimit: Number
+  }
 }
 ```
 

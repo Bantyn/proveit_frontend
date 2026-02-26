@@ -8,6 +8,7 @@ export default function GlassElement({
   blur = "0.6rem",
   inset = "20px",
   className,
+  shadowStrength="10px",
   bgColor="bg-white/2",
   bounce = false,
   ...props
@@ -55,7 +56,7 @@ export default function GlassElement({
         className,
         bgColor
       )}
-      style={{ "--glass-blur": `${blur}`, "--inset-strength": `${inset}` }}
+      style={{ "--glass-blur": `${blur}`, "--inset-strength": `${inset}`, "--shadow-strength": shadowStrength }}
       {...props}
     >
       {children}

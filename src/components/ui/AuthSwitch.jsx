@@ -1,16 +1,167 @@
 import { useState, useEffect } from "react";
-import { User, Mail, Lock, Briefcase } from "lucide-react";
+import {
+  User,
+  Mail,
+  Lock,
+  Briefcase,
+  Phone,
+  Building2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import GlassActions from "./glass-ui/GlassActions";
 
+// ─── Initial form state factories ────────────────────────────────────────────
+const defaultSignIn = () => ({ email: "", password: "" });
+
+const defaultCandidateSignUp = () => ({
+  fullName: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+});
+
+const defaultCompanySignUp = () => ({
+  fullName: "", // owner's full name  → User.fullName
+  companyName: "", // → Company.companyName
+  email: "", // → User.email
+  password: "", // hashed server-side → User.passwordHash
+  confirmPassword: "",
+});
+
+// ─── Pill toggle (shared) ─────────────────────────────────────────────────────
+function UserTypePill({ userType, setUserType }) {
+  return (
+    <div className="relative flex bg-slate-100 p-1 h-15 rounded-full mb-5 w-full max-w-[300px]">
+      <div
+        className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-full shadow-sm transition-all duration-300 ease-in-out ${
+          userType === "candidate" ? "left-1" : "left-[calc(50%)]"
+        }`}
+      />
+      {["candidate", "company"].map((type) => (
+        <button
+          key={type}
+          type="button"
+          className={`relative z-10 flex-1 py-2 text-sm font-medium rounded-full transition-colors duration-300 capitalize ${
+            userType === type
+              ? "text-slate-800"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+          onClick={() => setUserType(type)}
+        >
+          {type}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─── Reusable input row ───────────────────────────────────────────────────────
+function InputField({
+  icon: Icon,
+  type = "text",
+  placeholder,
+  name,
+  value,
+  onChange,
+  extra,
+}) {
+  const [show, setShow] = useState(false);
+  const isPassword = type === "password";
+  const resolvedType = isPassword ? (show ? "text" : "password") : type;
+
+  return (
+    <div
+      className="input-field"
+      style={{ gridTemplateColumns: extra ? "15% 75% 10%" : "15% 85%" }}
+    >
+      <i className="flex items-center justify-center">
+        <Icon size={20} />
+      </i>
+      <input
+        type={resolvedType}
+        placeholder={placeholder}
+        name={name}
+        value={value}
+        onChange={onChange}
+        autoComplete={isPassword ? "current-password" : "on"}
+      />
+      {isPassword && (
+        <button
+          type="button"
+          onClick={() => setShow((p) => !p)}
+          className="flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+          tabIndex={-1}
+        >
+          {show ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function AuthSwitch() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [userType, setUserType] = useState("candidate"); // 'candidate' | 'company'
 
+  // Controlled form state
+  const [signIn, setSignIn] = useState(defaultSignIn());
+  const [candidateSignUp, setCandidateSignUp] = useState(
+    defaultCandidateSignUp(),
+  );
+  const [companySignUp, setCompanySignUp] = useState(defaultCompanySignUp());
+
+  // Helpers
+  const handleSignIn = (e) =>
+    setSignIn((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleCandidateSignUp = (e) =>
+    setCandidateSignUp((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleCompanySignUp = (e) =>
+    setCompanySignUp((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  // Slide animation
   useEffect(() => {
     const container = document.querySelector(".auth-container");
     if (!container) return;
     if (isSignUp) container.classList.add("sign-up-mode");
     else container.classList.remove("sign-up-mode");
   }, [isSignUp]);
+
+  // Form submissions (wire to API later)
+  const handleSignInSubmit = (e) => {
+    e.preventDefault();
+    console.log("Sign-in payload:", {
+      email: signIn.email, // → User.email
+      password: signIn.password, // → raw; bcrypt compare server-side
+      role: userType === "candidate" ? "CANDIDATE" : "COMPANY",
+    });
+  };
+
+  const handleSignUpSubmit = (e) => {
+    e.preventDefault();
+    if (userType === "candidate") {
+      const { fullName, email, password, confirmPassword } = candidateSignUp;
+      if (password !== confirmPassword) return alert("Passwords do not match");
+      console.log("Candidate sign-up payload:", {
+        fullName, // → User.fullName
+        email, // → User.email
+        password, // → hashed server-side → User.passwordHash
+        role: "CANDIDATE",
+      });
+    } else {
+      const { fullName, companyName, email, password, confirmPassword } =
+        companySignUp;
+      if (password !== confirmPassword) return alert("Passwords do not match");
+      console.log("Company sign-up payload:", {
+        fullName, // → User.fullName  (owner)
+        companyName, // → Company.companyName
+        email, // → User.email
+        password, // → hashed server-side → User.passwordHash
+        role: "COMPANY",
+      });
+    }
+  };
 
   return (
     <>
@@ -48,6 +199,7 @@ export default function AuthSwitch() {
         }
 
         .signin-signup {
+          margin-top: 30px;
           position: absolute;
           top: 50%;
           transform: translate(-50%, -50%);
@@ -66,14 +218,17 @@ export default function AuthSwitch() {
           flex-direction: column;
           padding: 0 5rem;
           transition: all 0.2s 0.7s;
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
           grid-column: 1 / 2;
           grid-row: 1 / 2;
+
         }
 
         form.sign-up-form {
           opacity: 0;
           z-index: 1;
+          
         }
 
         form.sign-in-form {
@@ -81,18 +236,19 @@ export default function AuthSwitch() {
         }
 
         .title {
-          font-size: 2.2rem;
+          font-size: 2rem;
           color: #444;
           margin-bottom: 10px;
           font-weight: 700;
+          margin-top: 30px;
         }
 
         .input-field {
-          max-width: 480px;
+          max-width: 500px;
           width: 100%;
           background-color: #f0f0f0;
-          margin: 10px 0;
-          height: 65px;
+          margin: 7px 0;
+          height: 58px;
           border-radius: 55px;
           display: grid;
           grid-template-columns: 15% 85%;
@@ -131,27 +287,27 @@ export default function AuthSwitch() {
           font-weight: 400;
         }
 
-        .btn {
-          width: 250px;
-          background-color: #667eea;
-          border: none;
-          outline: none;
-          height: 59px;
-          border-radius: 49px;
-          color: #fff;
-          text-transform: uppercase;
-          font-weight: 600;
-          margin: 10px 0;
-          cursor: pointer;
-          transition: 0.5s;
-          font-size: 0.9rem;
-        }
+        // .btn {
+        //   width: 250px;
+        //   background-color: #667eea;
+        //   border: none;
+        //   outline: none;
+        //   height: 59px;
+        //   border-radius: 49px;
+        //   color: #fff;
+        //   text-transform: uppercase;
+        //   font-weight: 600;
+        //   margin: 10px 0;
+        //   cursor: pointer;
+        //   transition: 0.5s;
+        //   font-size: 0.9rem;
+        // }
 
-        .btn:hover {
-          background-color: #5568d3;
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
+        // .btn:hover {
+        //   background-color: #5568d3;
+        //   transform: translateY(-2px);
+        //   box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        // }
 
         .panels-container {
           position: absolute;
@@ -301,6 +457,21 @@ export default function AuthSwitch() {
           box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
+        .forgot-link {
+          font-size: 0.85rem;
+          color: #667eea;
+          cursor: pointer;
+          margin-bottom: 4px;
+          text-decoration: underline;
+          background: none;
+          border: none;
+          padding: 0;
+        }
+
+        .forgot-link:hover {
+          color: #5568d3;
+        }
+
         @media (max-width: 870px) {
           .auth-container {
             min-height: 800px;
@@ -394,140 +565,168 @@ export default function AuthSwitch() {
         <div className="auth-container">
           <div className="forms-container">
             <div className="signin-signup">
-              {/* Sign In Form */}
-              <form
-                className="sign-in-form"
-                onSubmit={(e) => e.preventDefault()}
-              >
-                {/* Sliding Pill Toggle */}
-                <div className="relative flex bg-slate-100 p-1 rounded-full mb-6 w-full max-w-[300px]">
-                  <div
-                    className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-full shadow-sm transition-all duration-300 ease-in-out ${
-                      userType === "candidate" ? "left-1" : "left-[calc(50%)]"
-                    }`}
-                  ></div>
-                  <button
-                    className={`relative z-10 flex-1 py-2 text-sm font-medium rounded-full transition-colors duration-300 ${
-                      userType === "candidate"
-                        ? "text-slate-800"
-                        : "text-slate-500 hover:text-slate-700"
-                    }`}
-                    onClick={() => setUserType("candidate")}
-                  >
-                    Candidate
-                  </button>
-                  <button
-                    className={`relative z-10 flex-1 py-2 text-sm font-medium rounded-full transition-colors duration-300 ${
-                      userType === "company"
-                        ? "text-slate-800"
-                        : "text-slate-500 hover:text-slate-700"
-                    }`}
-                    onClick={() => setUserType("company")}
-                  >
-                    Company
-                  </button>
-                </div>
+              {/* ── Sign In Form ─────────────────────────────────────────── */}
+              <form className="sign-in-form" onSubmit={handleSignInSubmit}>
+                <UserTypePill userType={userType} setUserType={setUserType} />
 
                 <h2 className="title">
                   {userType === "candidate" ? "Sign in" : "Company Sign in"}
                 </h2>
-                <div className="input-field">
-                  <i className="flex items-center justify-center">
-                    <Mail size={20} />
-                  </i>
-                  <input type="email" placeholder="Email" />
-                </div>
-                <div className="input-field">
-                  <i className="flex items-center justify-center">
-                    <Lock size={20} />
-                  </i>
-                  <input type="password" placeholder="Password" />
-                </div>
+
+                {/* email → User.email */}
+                <InputField
+                  icon={Mail}
+                  type="email"
+                  placeholder="Email"
+                  name="email"
+                  value={signIn.email}
+                  onChange={handleSignIn}
+                />
+
+                {/* password → User.passwordHash (hashed server-side) */}
+                <InputField
+                  icon={Lock}
+                  type="password"
+                  placeholder="Password"
+                  name="password"
+                  value={signIn.password}
+                  onChange={handleSignIn}
+                  extra
+                />
+
+                <button type="button" className="forgot-link">
+                  Forgot password?
+                </button>
+
                 <input type="submit" value="Login" className="btn solid" />
-                <p className="social-text">Or sign in with social platforms</p>
+
+                <p className="social-text">Or sign in with</p>
                 <div className="social-media">
                   <SocialIcons />
                 </div>
               </form>
 
-              {/* Sign Up Form */}
-              <form
-                className="sign-up-form"
-                onSubmit={(e) => e.preventDefault()}
-              >
-                {/* Sliding Pill Toggle - Mirrored for Sign Up */}
-                <div className="relative flex bg-slate-100 p-1 rounded-full mb-6 w-full max-w-[300px]">
-                  <div
-                    className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-full shadow-sm transition-all duration-300 ease-in-out ${
-                      userType === "candidate" ? "left-1" : "left-[calc(50%)]"
-                    }`}
-                  ></div>
-                  <button
-                    className={`relative z-10 flex-1 py-2 text-sm font-medium rounded-full transition-colors duration-300 ${
-                      userType === "candidate"
-                        ? "text-slate-800"
-                        : "text-slate-500 hover:text-slate-700"
-                    }`}
-                    onClick={() => setUserType("candidate")}
-                  >
-                    Candidate
-                  </button>
-                  <button
-                    className={`relative z-10 flex-1 py-2 text-sm font-medium rounded-full transition-colors duration-300 ${
-                      userType === "company"
-                        ? "text-slate-800"
-                        : "text-slate-500 hover:text-slate-700"
-                    }`}
-                    onClick={() => setUserType("company")}
-                  >
-                    Company
-                  </button>
-                </div>
+              {/* ── Sign Up Form ─────────────────────────────────────────── */}
+              <form className="sign-up-form" onSubmit={handleSignUpSubmit}>
+                <UserTypePill userType={userType} setUserType={setUserType} />
 
                 <h2 className="title">
-                  {userType === "candidate" ? "Sign up" : "Company Reg."}
+                  {userType === "candidate"
+                    ? "Create Account"
+                    : "Register Company"}
                 </h2>
 
                 {userType === "company" && (
                   <>
-                    <div className="input-field">
-                      <i className="flex items-center justify-center">
-                        <Briefcase size={20} />
-                      </i>
-                      <input type="text" placeholder="Company Name" />
-                    </div>
-                    <div className="input-field">
-                      <i className="flex items-center justify-center">
-                        <User size={20} />
-                      </i>
-                      <input type="text" placeholder="Owner Name" />
-                    </div>
+                    {/* companyName → Company.companyName */}
+                    <InputField
+                      icon={Building2}
+                      type="text"
+                      placeholder="Company Name"
+                      name="companyName"
+                      value={companySignUp.companyName}
+                      onChange={handleCompanySignUp}
+                    />
+
+                    {/* fullName → User.fullName (owner / point of contact) */}
+                    <InputField
+                      icon={User}
+                      type="text"
+                      placeholder="Owner Full Name"
+                      name="fullName"
+                      value={companySignUp.fullName}
+                      onChange={handleCompanySignUp}
+                    />
+
+                    {/* email → User.email */}
+                    <InputField
+                      icon={Mail}
+                      type="email"
+                      placeholder="Work Email"
+                      name="email"
+                      value={companySignUp.email}
+                      onChange={handleCompanySignUp}
+                    />
+
+                    {/* password → User.passwordHash */}
+                    <InputField
+                      icon={Lock}
+                      type="password"
+                      placeholder="Password"
+                      name="password"
+                      value={companySignUp.password}
+                      onChange={handleCompanySignUp}
+                      extra
+                    />
+
+                    {/* confirmPassword — client-side validation only */}
+                    <InputField
+                      icon={Lock}
+                      type="password"
+                      placeholder="Confirm Password"
+                      name="confirmPassword"
+                      value={companySignUp.confirmPassword}
+                      onChange={handleCompanySignUp}
+                      extra
+                    />
                   </>
                 )}
 
                 {userType === "candidate" && (
-                  <div className="input-field">
-                    <i className="flex items-center justify-center">
-                      <User size={20} />
-                    </i>
-                    <input type="text" placeholder="Full Name" />
-                  </div>
+                  <>
+                    {/* fullName → User.fullName */}
+                    <InputField
+                      icon={User}
+                      type="text"
+                      placeholder="Full Name"
+                      name="fullName"
+                      value={candidateSignUp.fullName}
+                      onChange={handleCandidateSignUp}
+                    />
+
+                    {/* email → User.email */}
+                    <InputField
+                      icon={Mail}
+                      type="email"
+                      placeholder="Email"
+                      name="email"
+                      value={candidateSignUp.email}
+                      onChange={handleCandidateSignUp}
+                    />
+
+                    {/* password → User.passwordHash */}
+                    <InputField
+                      icon={Lock}
+                      type="password"
+                      placeholder="Password"
+                      name="password"
+                      value={candidateSignUp.password}
+                      onChange={handleCandidateSignUp}
+                      extra
+                    />
+
+                    {/* confirmPassword — client-side only */}
+                    <InputField
+                      icon={Lock}
+                      type="password"
+                      placeholder="Confirm Password"
+                      name="confirmPassword"
+                      value={candidateSignUp.confirmPassword}
+                      onChange={handleCandidateSignUp}
+                      extra
+                    />
+                  </>
                 )}
 
-                <div className="input-field">
-                  <i className="flex items-center justify-center">
-                    <Mail size={20} />
-                  </i>
-                  <input type="email" placeholder="Email" />
-                </div>
-                <div className="input-field">
-                  <i className="flex items-center justify-center">
-                    <Lock size={20} />
-                  </i>
-                  <input type="password" placeholder="Password" />
-                </div>
-                <input type="submit" value="Sign up" className="btn" />
-                <p className="social-text">Or sign up with social platforms</p>
+                <GlassActions
+                  type="button"
+                  text="Sign up"
+                  bounce
+                  className="w-[250px] h-[59px] rounded-[49px] uppercase font-semibold cursor-pointer font-[0.9rem]"
+                >
+                  {/* <input type="submit" value="Sign up" className="btn" /> */}
+                </GlassActions>
+                <p className="social-text">Or sign up with</p>
                 <div className="social-media">
                   <SocialIcons />
                 </div>
@@ -535,13 +734,15 @@ export default function AuthSwitch() {
             </div>
           </div>
 
+          {/* ── Side panels ──────────────────────────────────────────────── */}
           <div className="panels-container">
             <div className="panel left-panel">
               <div className="content">
                 <h3>New here?</h3>
                 <p>
-                  Join us today and discover a world of possibilities. Create
-                  your account in seconds!
+                  Join ProveIt today and discover a world of possibilities.
+                  <br />
+                  Create your account in seconds!
                 </p>
                 <button
                   className="btn transparent"
@@ -574,7 +775,8 @@ export default function AuthSwitch() {
 function SocialIcons() {
   return (
     <>
-      <a href="#" className="social-icon">
+      {/* Google */}
+      <a href="#" className="social-icon" aria-label="Sign in with Google">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -600,7 +802,8 @@ function SocialIcons() {
           />
         </svg>
       </a>
-      <a href="#" className="social-icon">
+      {/* Facebook */}
+      <a href="#" className="social-icon" aria-label="Sign in with Facebook">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -611,18 +814,8 @@ function SocialIcons() {
           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
         </svg>
       </a>
-      <a href="#" className="social-icon">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="#1DA1F2"
-        >
-          <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-        </svg>
-      </a>
-      <a href="#" className="social-icon">
+      {/* LinkedIn */}
+      <a href="#" className="social-icon" aria-label="Sign in with LinkedIn">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -631,6 +824,18 @@ function SocialIcons() {
           fill="#0A66C2"
         >
           <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+        </svg>
+      </a>
+      {/* GitHub */}
+      <a href="#" className="social-icon" aria-label="Sign in with GitHub">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
         </svg>
       </a>
     </>
