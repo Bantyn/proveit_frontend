@@ -22,7 +22,7 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center  pt-70">
       {/* Neon Orbs Background */}
       <div className="absolute inset-0 z-0">
-        <NeonOrbs />
+        {/* <NeonOrbs /> */}
       </div>
 
       <div className="container mx-auto px-4 z-10 relative text-center">
