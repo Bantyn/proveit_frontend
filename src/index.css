@@ -23,49 +23,29 @@
       #a855f7,
       #60a5fa);
 
-  /* Dark Mode (Default) - "Engineered Deep Black" */
   --color-background: #0A0A0E;
-  /* Deep black range */
   --color-surface: #13131A;
-  /* Soft layered surface */
   --color-primary: #6366f1;
-  /* Indigo-500 - Muted glow influence */
   --color-secondary: #8b5cf6;
-  /* Violet-500 */
   --color-accent: #f97316;
-  /* Subtle orange */
   --color-muted: #1c1c21;
   --color-text-main: #F5F5F7;
-  /* Off-white, not harsh white */
   --color-text-secondary: #A1A1AA;
   --color-border: transparent;
-  /* No visible borders */
-
   --font-letter-spacing: -0.01em;
-  /* Adjusted matching Apple */
-
   --radius-button: 9999px;
-  /* rounded-full */
   --radius-card: 2rem;
-  /* rounded-3xl/4xl - Deep curve */
 }
 
 :root[data-theme="light"] {
-  /* Light Mode - "Soft Wash" */
   --color-background: #F5F5F7;
-  /* Apple's specific off-white */
   --color-surface: #FFFFFF;
   --color-primary: #007AFF;
-  /* Apple Blue-ish */
   --color-secondary: #5856D6;
-  /* Apple Purple */
   --color-accent: #FF9500;
-  /* Apple Orange */
   --color-muted: #E5E5EA;
   --color-text-main: #1D1D1F;
-  /* Apple Black */
   --color-text-secondary: #86868B;
-  /* Apple Gray */
   --color-border: transparent;
 }
 
@@ -130,7 +110,6 @@
 }
 
 [data-theme='light'] .beam-light {
-  /* Adjust for light mode visibility if needed, or keep same */
   background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.5) 30%, rgba(129, 140, 248, 0.9) 70%, rgba(99, 102, 241, 1) 100%);
 }
 
@@ -143,7 +122,6 @@
   border: 1px solid rgba(99, 102, 241, 0.4);
 }
 
-/* Dark mode overrides if you have a .dark class on body/html */
 [data-theme='dark'] .beam-light {
   background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.5) 30%, rgba(150, 200, 255, 0.9) 70%, white 100%);
   box-shadow: 0 0 20px 4px rgba(100, 180, 255, 0.8), 0 0 40px 8px rgba(59, 130, 246, 0.4);
