@@ -8,7 +8,7 @@ import GlassActions from "../../../components/ui/glass-ui/GlassActions";
 const FinalCTA = () => {
   return (<>
       <div className="absolute inset-0">
-        <StripeGradientShader />
+        {/* <StripeGradientShader /> */}
       </div>
     <section className="py-50 min-h-screen bg-transparent relative overflow-hidden">
 
