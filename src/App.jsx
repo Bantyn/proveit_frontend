@@ -8,7 +8,9 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/MockAuthContext";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
-
+import EmployeeProfile from "./pages/candidate-profile/EmployeeProfile";
+import About from "./pages/about/About";
+import JobDetailPage from "./pages/jobs/JobDetailPage";
 function App() {
   return (
     <ThemeProvider>
@@ -26,6 +28,9 @@ function App() {
                   <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/candidate-profile" element={<EmployeeProfile />} />I
+                    <Route path="/about" element={<About />} />
+                    <Route path="/job" element={<JobDetailPage />} />
                   </Routes>
                   <footer>
                     <Footer />

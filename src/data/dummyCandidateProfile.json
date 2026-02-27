@@ -1,0 +1,63 @@
+{
+    "candidateName": "Sarah Anderson",
+    "email": "sarah.anderson@example.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "San Francisco, CA",
+    "title": "Senior Frontend Engineer",
+    "bio": "Passionate and detail-oriented frontend engineer with 5+ years of experience building scalable, accessible, and highly polished web applications. Strong focus on UI/UX, motion design, and performance optimization.",
+    "experienceLevel": "Senior",
+    "availabilityStatus": "Actively Looking",
+    "skills": [
+        {
+            "name": "React",
+            "level": "Expert",
+            "years": 5
+        },
+        {
+            "name": "TypeScript",
+            "level": "Advanced",
+            "years": 4
+        },
+        {
+            "name": "Next.js",
+            "level": "Advanced",
+            "years": 3
+        },
+        {
+            "name": "Tailwind CSS",
+            "level": "Expert",
+            "years": 4
+        },
+        {
+            "name": "Framer Motion",
+            "level": "Advanced",
+            "years": 2
+        },
+        {
+            "name": "GSAP",
+            "level": "Intermediate",
+            "years": 1
+        }
+    ],
+    "education": [
+        {
+            "degree": "B.S. Computer Science",
+            "college": "Stanford University",
+            "year": 2019
+        }
+    ],
+    "githubLink": "https://github.com/sarah-anderson",
+    "linkedinLink": "https://linkedin.com/in/sarah-anderson",
+    "portfolioLink": "https://sarah.dev",
+    "resumeUrl": "https://drive.google.com/resume-preview-link",
+    "projectLinks": [
+        {
+            "label": "AI Dashboard Pro",
+            "url": "https://ai-dashboard.sarah.dev"
+        },
+        {
+            "label": "E-Commerce Micro-interactions",
+            "url": "https://shop-motion.sarah.dev"
+        }
+    ]
+}
