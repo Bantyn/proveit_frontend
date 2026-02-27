@@ -56,7 +56,7 @@ const features = [
 
 const Security = () => {
   return (
-    <section className="py-24 bg-transparent  relative overflow-hidden">
+    <section className="py-24 bg-transparent  relative overflow-hidden z-1">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center text-center mb-16">
           <motion.h2
